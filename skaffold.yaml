@@ -6,17 +6,17 @@ build:
   tagPolicy:
     dateTime: {}
   local:
-    push: false
+    push: true
   artifacts:
-  - image: coit-backend1
+  - image: amol1996/coit-backend1
     context: coit-backend1
     docker:
       dockerfile: Dockerfile-multistage
-  - image: coit-backend2
+  - image: amol1996/coit-backend2
     context: coit-backend2
     docker:
       dockerfile: Dockerfile
-  - image: coit-frontend
+  - image: amol1996/coit-frontend
     context: coit-frontend
     docker:
       dockerfile: Dockerfile-multistage
@@ -29,14 +29,27 @@ deploy:
     - resource-manifests/service-coit-backend1-lb.yaml
     - resource-manifests/service-coit-backend2.yaml
     - resource-manifests/service-coit-frontend-lb.yaml
-profiles:
-  - name: dev
-    activation:
-      - env: DEV=1
-      - kubeContext: arn:aws:eks:ap-south-1:210607809234:cluster/aws-mumbai-all
-        env: DEV=10
-    build:
-      local:
-        push: true
-    deploy:
-      kubeContext: arn:aws:eks:ap-south-1:210607809234:cluster/aws-mumbai-all
+
+portForward:
+- resourceType: service
+  resourceName: coit-frontend-lb
+  port: 80
+  localPort: 4500 
+
+- resourceType: service
+  resourceName: coit-backend1-lb
+  port: 80
+  localPort: 4600
+
+
+# profiles:
+#   - name: dev
+#     activation:
+#       - env: DEV=1
+#       - kubeContext: arn:aws:eks:ap-south-1:210607809234:cluster/aws-mumbai-all
+#         env: DEV=10
+#     build:
+#       local:
+#         push: true
+#     deploy:
+#       kubeContext: arn:aws:eks:ap-south-1:210607809234:cluster/aws-mumbai-all
